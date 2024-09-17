@@ -7,7 +7,7 @@ K Nearest Neighbors
 ...     [-1., 0.],
 ...     [0., -1.]])
 >>> query_QF = np.asarray([
-    ...     [0.9, 0.],
+...     [0.9, 0.],
 ...     [0., -0.9]])
 
 Example Test K=1
@@ -66,5 +66,12 @@ def calc_k_nearest_neighbors(data_NF, query_QF, K=1):
         appearing first in row order in the original data_NF array
     '''
 
-    # TODO fixme
-    return None
+    # Get euclidian distances
+    dist = np.linalg.norm(data_NF[None, :, :] - query_QF[:, None, :], axis=2)
+
+    # Sort distances, get indices of kth smallest
+    indices = np.argsort(dist, axis = 1)[:, :K]
+
+    neigbors = data_NF[indices]
+    
+    return neigbors
