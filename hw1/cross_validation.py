@@ -58,11 +58,30 @@ def train_models_and_calc_scores_for_n_fold_cv(
     train_error_per_fold = np.zeros(n_folds, dtype=np.float32)
     test_error_per_fold = np.zeros(n_folds, dtype=np.float32)
 
-    # TODO define the folds here by calling your function
-    # e.g. ... = make_train_and_test_row_ids_for_n_fold_cv(...)
+    # define the folds here by calling your function
+    train_ids_per_fold, test_ids_per_fold = make_train_and_test_row_ids_for_n_fold_cv(
+        x_NF.shape[0], n_folds, random_state)
 
-    # TODO loop over folds and compute the train and test error
-    # for the provided estimator
+    # print(test_ids_per_fold)
+    # loop over folds and compute the train and test error
+    for fold in range(n_folds):
+        train_ids = train_ids_per_fold[fold]
+        test_ids = test_ids_per_fold[fold]
+
+        # Split data into train and test sets
+        x_train, y_train = x_NF[train_ids], y_N[train_ids]
+        x_test, y_test = x_NF[test_ids], y_N[test_ids]
+
+        # Train the estimator
+        estimator.fit(x_train, y_train)
+
+        # Predict and calculate train/test errors
+        y_train_pred = estimator.predict(x_train)
+        y_test_pred = estimator.predict(x_test)
+
+        # Use calc_root_mean_squared_error for error calculation
+        train_error_per_fold[fold] = calc_root_mean_squared_error(y_train, y_train_pred)
+        test_error_per_fold[fold] = calc_root_mean_squared_error(y_test, y_test_pred)
 
     return train_error_per_fold, test_error_per_fold
 
@@ -136,9 +155,26 @@ def make_train_and_test_row_ids_for_n_fold_cv(
         random_state = np.random.RandomState(int(random_state))
 
     # TODO obtain a shuffled order of the n_examples
+    all_indices = np.arange(n_examples)
+    random_state.shuffle(all_indices)
 
-    train_ids_per_fold = list()
-    test_ids_per_fold = list()
+    fold_sizes = np.full(n_folds, n_examples // n_folds)
+    fold_sizes[:n_examples % n_folds] += 1
+    
+    
+    current = 0
+    train_ids_per_fold = []
+    test_ids_per_fold = []
+    for fold_size in fold_sizes:
+        # Define test fold
+        test_ids = all_indices[current:current + fold_size]
+        test_ids_per_fold.append(test_ids)
+
+        # Define train fold (everything not in the test fold)
+        train_ids = np.setdiff1d(all_indices, test_ids)
+        train_ids_per_fold.append(train_ids)
+        
+        current += fold_size
     
     # TODO establish the row ids that belong to each fold's
     # train subset and test subset

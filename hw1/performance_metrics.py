@@ -37,5 +37,5 @@ def calc_root_mean_squared_error(y_N, yhat_N):
     yhat_N = np.atleast_1d(yhat_N)
     assert y_N.ndim == 1
     assert y_N.shape == yhat_N.shape
-    return 0.0  # TODO fixme
+    return np.linalg.norm(y_N - yhat_N)/(y_N.shape[0]**(1/2))
 

@@ -76,9 +76,13 @@ class LeastSquaresLinearRegressor(object):
         '''      
         N, F = x_NF.shape
         
-        # Hint: Use np.linalg.solve
-        # Using np.linalg.inv may cause issues (see day03 lab) 
-        pass # TODO fixme
+        xtilde_NG = np.hstack([x_NF, np.ones((N, 1))])
+        xTx_GG = np.dot(xtilde_NG.T, xtilde_NG)
+        theta = np.linalg.solve(xTx_GG, np.dot(xtilde_NG.T, y_N))
+        # # Hint: Use np.linalg.solve
+        # # Using np.linalg.inv may cause issues (see day03 lab) 
+        self.w_F = theta[:-1]
+        self.b = theta[-1]
 
 
     def predict(self, x_MF):
@@ -95,8 +99,8 @@ class LeastSquaresLinearRegressor(object):
         yhat_M : 1D array, size M
             Each value is the predicted scalar for one example
         '''
-        # TODO FIX ME
-        return np.asarray([0.0])
+        yhat_M = np.dot(x_MF, self.w_F) + self.b
+        return yhat_M
 
 
 
@@ -125,6 +129,11 @@ def test_on_toy_data(N=100):
     print(true_w_F)
     print("Estimated weights")
     print(linear_regr.w_F)
+
+    print("True Y")
+    print(y_N)
+    print("Estimated Y")
+    print(yhat_N)
 
     print("True intercept")
     print(np.asarray([true_b]))
