@@ -58,11 +58,12 @@ def calc_TP_TN_FP_FN(ytrue_N, yhat_N):
     yhat_N = np.asarray(yhat_N, dtype=np.int32)
     
     # TODO fix by calculating the number of true pos, true neg, etc.
-    TP  = 0
-    TN = 0
-    FP = 0
-    FN = 0
-    return None  # TODO fix me
+    assert ytrue_N.shape == yhat_N.shape
+    TP  = int(np.sum(ytrue_N & yhat_N))
+    TN = int(np.sum((1-ytrue_N) & (1-yhat_N)))
+    FP = int(np.sum((1-ytrue_N) & yhat_N))
+    FN = int(np.sum(ytrue_N & (1-yhat_N)))
+    return TP, TN, FP, FN
 
 
 def calc_ACC(ytrue_N, yhat_N):
@@ -94,11 +95,11 @@ def calc_ACC(ytrue_N, yhat_N):
     >>> print("%.3f" % acc)
     0.625
     '''
-    # TODO compute accuracy
+    TP, TN, FP, FN = calc_TP_TN_FP_FN(ytrue_N, yhat_N)
     # You should *use* your calc_TP_TN_FP_FN function from above
     # Hint: make sure denominator will never be exactly zero
     # by adding a small value like 1e-10
-    return None  # TODO fix me
+    return (TP + TN)/(TP + TN + FP + FN + 1e-10)
 
 
 
@@ -138,11 +139,12 @@ def calc_TPR(ytrue_N, yhat_N):
     >>> print("%.3f" % empty_val)
     0.000
     '''
-    # TODO compute TPR
+    
     # You should *use* your calc_TP_TN_FP_FN function from above
     # Hint: make sure denominator will never be exactly zero
     # by adding a small value like 1e-10
-    return None  # TODO fix me
+    TP, TN, FP, FN = calc_TP_TN_FP_FN(ytrue_N, yhat_N)
+    return (TP/(TP + FN + 1e-10))
 
 
 def calc_PPV(ytrue_N, yhat_N):
@@ -185,5 +187,14 @@ def calc_PPV(ytrue_N, yhat_N):
     # You should *use* your calc_TP_TN_FP_FN function from above
     # Hint: make sure denominator will never be exactly zero
     # by adding a small value like 1e-10
-    return None  # TODO fix me
+    TP, TN, FP, FN = calc_TP_TN_FP_FN(ytrue_N, yhat_N)
+    return (TP/(TP + FP + 1e-10))
 
+# N = 8
+# ytrue_N = np.asarray([0., 0., 0., 0., 1., 1., 1., 1.])
+# yhat_N  = np.asarray([0., 0., 1., 0., 1., 1., 0., 0.])
+# TP, TN, FP, FN = calc_TP_TN_FP_FN(ytrue_N, yhat_N)
+# print(TP)
+# print(TN)
+# print(FP)
+# print(FN)
