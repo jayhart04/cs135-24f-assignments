@@ -111,13 +111,25 @@ class InternalDecisionNode(object):
         # TODO determine which of the input T examples belong to the 
         # left child and which belong to the right
         # Hint: use this node's "feat_id" and "thresh_val" attributes
-
+        
+        left_idx = x_TF[:, self.feat_id] < self.thresh_val
+        right_idx = x_TF[:, self.feat_id] >= self.thresh_val
         # TODO ask the left child for its predictions (call 'predict')
         # TODO ask the right child for its predictions (call 'predict')
         
+        left_y = np.array([])
+        right_y = np.array([])
+        if left_idx.size > 0:
+            left_y = self.left_child.predict(x_TF[left_idx])
+            
+        if right_idx.size > 0:
+            right_y = self.right_child.predict(x_TF[right_idx])
+        
         # TODO aggregate all predictions and return one array
         # Hint: Make sure to preserve the order of examples as in the input.
-        yhat_T = 1.2345 * np.ones(T, dtype=np.float64) # TODO fixme
+        yhat_T = np.empty(T, dtype=np.float64)
+        yhat_T[left_idx] = left_y
+        yhat_T[right_idx] = right_y
         return yhat_T
 
 
@@ -181,7 +193,7 @@ class LeafNode(object):
         # TODO return one array with prediction determined by training set
         # Hint: Use this node's attribute "y_N", accessed by "self.y_N"
         # This is an array of all y values that reach this leaf in train set.
-        yhat_T = -1.2345 * np.ones(T) # TODO fixme
+        yhat_T = np.full(T, np.mean(self.y_N))
         return yhat_T
 
 
